@@ -17,7 +17,7 @@
             display: inline-block;
             vertical-align: middle;
           "
-        />管理员：汤龙康</span
+        />{{ isAdmin }}：{{ name }}</span
       >
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="home">系统首页</el-dropdown-item>
@@ -33,32 +33,41 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
 export default {
+  data() {
+    return {
+      isAdmin: sessionStorage["isAdmin"] ? "管理员" : "用户",
+      name: sessionStorage["name"],
+    }
+  },
   components: {
     Breadcrumb,
-    Hamburger
+    Hamburger,
   },
   computed: {
-    ...mapGetters([
-      'sidebar'
-    ])
+    ...mapGetters(["sidebar"]),
   },
   methods: {
     commandClick(command) {
-      if (command === 'home') {
-        this.$router.push('/')
-      } else {
+      if (command === "logout") {
         this.$message({
           duration: 1500,
-          message: '登出系统中！',
-          type: 'error'
+          message: "登出系统！",
+          type: "error",
+          duration: 1000,
         })
+
+        sessionStorage.clear()
       }
+
+      setTimeout(() => {
+        this.$router.push("/login")
+      }, 500)
     },
     toggleSideBar() {
-      this.$store.dispatch('app/toggleSideBar')
-    }
-  }
-}
+      this.$store.dispatch("app/toggleSideBar")
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

@@ -9,7 +9,7 @@
       <el-col :span="3">
         <b>车辆保养</b>
       </el-col>
-      <el-col :span="4" :push="1"> 商品名称: </el-col>
+      <el-col :span="4" :push="2"> 商品名称: </el-col>
       <el-col :span="2" :pull="1">
         <el-input
           placeholder="请输入"
@@ -29,10 +29,9 @@
         >
         </el-input>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="6" :push="2">
         <el-button @click="clearInput">重置</el-button>
-        <el-button type="primary" @click="conditionSearch">搜索</el-button
-        ><el-button type="success" @click="add">添加</el-button>
+        <el-button type="primary" @click="conditionSearch">搜索</el-button>
       </el-col>
     </el-row>
     <el-table

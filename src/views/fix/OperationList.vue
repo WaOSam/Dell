@@ -9,10 +9,32 @@
       <el-col :span="3">
         <b>维修人员列表</b>
       </el-col>
+      <el-col :span="3" :push="1" :offset="1"> 姓名: </el-col>
+      <el-col :span="2" :pull="1">
+        <el-input
+          placeholder="请输入"
+          v-model="orderName"
+          clearable
+          size="small"
+        >
+        </el-input>
+      </el-col>
+      <el-col :span="2" :pull="1"> 是否空闲: </el-col>
+      <el-col :span="2" :pull="2">
+        <el-select v-model="isFree" clearable placeholder="请选择" size="small">
+          <el-option
+            v-for="item in trueOrFalse"
+            :key="item"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
+        </el-select>
+      </el-col>
       <el-col :span="6">
         <el-button @click="clearInput">重置</el-button>
         <el-button type="primary" @click="conditionSearch">搜索</el-button
-        ><el-button type="success" @click="add">添加</el-button>
+        ><el-button type="success" @click="addPart">添加</el-button>
       </el-col>
     </el-row>
     <el-table
@@ -37,9 +59,10 @@
             placement="right"
           >
             <el-switch
-              v-model="value"
+              v-model="scope.row.free"
               active-color="#13ce66"
               inactive-color="#ff4949"
+              @change="areYouFree(scope.row)"
             >
             </el-switch>
           </el-tooltip>
@@ -59,7 +82,7 @@
             size="mini"
             type="danger"
             icon="el-icon-delete"
-            @click="handleUpdate(scope.$index, scope.row)"
+            @click="handleDelete(scope.$index, scope.row)"
           >
             删除</el-button
           >
@@ -78,6 +101,46 @@
       layout="total, prev, pager, next, sizes, jumper"
     >
     </el-pagination>
+
+    <el-dialog
+      :title="opreation ? '编辑维修人员' : '新增维修人员'"
+      :visible="dialogVisible"
+      :show-close="false"
+      width="30%"
+    >
+      <el-form :model="part" ref="part" label-width="150px">
+        <el-form-item label="工号：" :hidden="!opreation">
+          <el-input class="input-width" v-model="part.id" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="姓名：">
+          <el-input class="input-width" v-model="part.name"></el-input>
+        </el-form-item>
+        <el-form-item label="联系电话：">
+          <el-input class="input-width" v-model="part.cycle"></el-input>
+        </el-form-item>
+        <el-form-item label="维修方向">
+          <el-input class="input-width" v-model="part.production"></el-input>
+        </el-form-item>
+        <el-form-item label="是否空闲">
+          <!-- <el-input class="input-width" v-model="part.phone"></el-input> -->
+          <el-tooltip
+            :content="part.free ? '空闲中' : '忙忙忙'"
+            placement="right"
+          >
+            <el-switch
+              v-model="part.free"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            >
+            </el-switch>
+          </el-tooltip>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelOperation">取 消</el-button>
+        <el-button type="primary" @click="handleConfirm">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -87,12 +150,28 @@
 export default {
   data() {
     return {
+      trueOrFalse: ['空闲', '繁忙'],
+
+      // false为新增，true为编辑
+      opreation: false,
+
+      part: {
+        "id": 1,
+        "name": "测试",
+        "cycle": "34天",
+        "production": "34天",
+        "phone": "34天",
+        "free": false
+      },
+
+      dialogVisible: false,
+
       startTime: "",
       endTime: "",
 
       column: "",
-      orderState: "",
-      orderId: "",
+      isFree: "",
+      orderName: "",
 
       tableData: [{
         "nation": "json在线编辑器",
@@ -100,8 +179,7 @@ export default {
         "alteredcolumn": "测试类型",
         "altertype": "空掉",
         "alteredreason": "玩玩而已",
-        "alteredcontent": "增加java类生成",
-        "free": false
+        "alteredcontent": "增加java类生成"
       }],
       total: 0,
 
@@ -112,6 +190,27 @@ export default {
     }
   },
   methods: {
+    areYouFree(row) {
+      this.$confirm('是否要进行空闲状态修改操作?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        // 网络请求改变状态
+        this.$message({
+          message: '操作成功！',
+          type: 'success',
+          duration: 1000
+        })
+      }).catch(() => {
+        row.free = !row.free
+        this.$message({
+          message: '操作取消！',
+          type: 'info',
+          duration: 1000
+        })
+      })
+    },
     handleSizeChange(val) {
       this.pagesize = val
       this.conditionSearch()
@@ -129,7 +228,7 @@ export default {
       this.searchMap.currentPage = 1
       this.search()
     },
-
+    // 创建查询参数
     createSearch() {
       this.searchMap = {
         alterType: this.type,
@@ -147,10 +246,65 @@ export default {
         this.total = res.data.total
       })
     },
+    // 重置搜索框
     clearInput() {
-      this.orderId = ''
-      this.orderState = ''
+      this.orderName = ''
+      this.isFree = ''
     },
+    // 编辑按钮
+    handleUpdate(index, row) {
+      this.dialogVisible = true
+      this.opreation = true
+    },
+    // 删除按钮
+    handleDelete(index, row) {
+      this.$confirm('是否要进行该删除操作?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 网络请求删除
+        this.$message({
+          message: '删除成功！',
+          type: 'success',
+          duration: 1000
+        })
+      }).catch(() => {
+        row.purchase = false
+        this.$message({
+          message: '操作取消！',
+          type: 'info',
+          duration: 1000
+        })
+      })
+    },
+    // 新增按钮
+    addPart() {
+      this.dialogVisible = true
+      this.opreation = false
+      this.part = {}
+    },// 取消新增或者编辑
+    cancelOperation() {
+      this.dialogVisible = false
+
+      this.$message({
+        message: '操作取消！',
+        type: 'info',
+        duration: 1000
+      })
+    },
+    // 新增或者编辑完成
+    handleConfirm() {
+      // 网络请求修改或者新增数据（save方法）
+
+      this.dialogVisible = false
+
+      this.$message({
+        message: this.opreation ? '修改成功！' : '添加成功！',
+        type: 'success',
+        duration: 1000
+      })
+    }
   },
   created() {
     this.conditionSearch()
@@ -158,4 +312,7 @@ export default {
 };
 </script>
 <style scoped>
+.input-width {
+  width: 80%;
+}
 </style>

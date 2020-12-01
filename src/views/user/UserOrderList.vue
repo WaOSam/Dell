@@ -14,10 +14,9 @@
         <el-input placeholder="请输入" v-model="carId" clearable size="small">
         </el-input>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="6" :push="2">
         <el-button @click="clearInput">重置</el-button>
-        <el-button type="primary" @click="conditionSearch">搜索</el-button
-        ><el-button type="success" @click="add">添加</el-button>
+        <el-button type="primary" @click="conditionSearch">搜索</el-button>
       </el-col>
     </el-row>
     <el-table

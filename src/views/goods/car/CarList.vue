@@ -38,7 +38,7 @@
       </el-table-column>
       <el-table-column prop="altertype" label="车辆信息" align="center">
       </el-table-column>
-      <el-table-column prop="alteredreason" label="保养周期(天)" align="center">
+      <el-table-column prop="alteredreason" label="保养周期(月)" align="center">
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
@@ -90,7 +90,7 @@
         <el-form-item label="车辆信息：">
           <el-input class="input-width" v-model="car.infor"></el-input>
         </el-form-item>
-        <el-form-item label="保养周期(天)：">
+        <el-form-item label="保养周期(月)：">
           <el-input class="input-width" v-model="car.cycle"></el-input>
         </el-form-item>
       </el-form>

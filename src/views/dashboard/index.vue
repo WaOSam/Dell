@@ -25,7 +25,7 @@
         </el-col>
         <el-col :span="6">
           <div class="total-frame">
-            <svg-icon icon-class="total-week" class="total-icon"> </svg-icon>
+            <img :src="img_home_order" class="total-icon" />
             <div class="total-title">近7天销售订单</div>
             <div class="total-value">112</div>
           </div>

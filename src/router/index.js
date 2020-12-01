@@ -23,6 +23,7 @@ const routes = [
     path: '/',
     component: Layout,
     redirect: '/home',
+    hidden: !sessionStorage['isAdmin'],
     children: [{
       path: 'home',
       name: 'home',
@@ -33,6 +34,7 @@ const routes = [
   {
     path: '/car',
     component: Layout,
+    hidden: !sessionStorage['isAdmin'],
     meta: { title: '车辆管理', icon: 'el-icon-menu' },
     children: [
       {
@@ -51,6 +53,7 @@ const routes = [
   {
     path: '/part',
     component: Layout,
+    hidden: !sessionStorage['isAdmin'],
     meta: { title: '配件管理', icon: 'el-icon-s-shop' },
     children: [
       {
@@ -70,6 +73,7 @@ const routes = [
   {
     path: '/fix',
     component: Layout,
+    hidden: !sessionStorage['isAdmin'],
     meta: { title: '运维', icon: 'el-icon-phone' },
     children: [
       {
@@ -83,12 +87,18 @@ const routes = [
         name: 'operationList',
         component: () => import('@/views/fix/OperationList'),
         meta: { title: '运维人员列表', icon: 'el-icon-notebook-2' }
-      }
+      },
+      {
+        path: 'fixPlaneDetail',
+        name: 'fixPlaneDetail',
+        component: () => import('@/views/fix/fixPlaneDetail')
+      },
     ]
   },
   {
     path: '/authority',
     component: Layout,
+    hidden: !sessionStorage['isAdmin'],
     children: [
       {
         path: '',
@@ -101,6 +111,7 @@ const routes = [
   {
     path: '/userOrderList',
     component: Layout,
+    hidden: sessionStorage['isAdmin'],
     children: [
       {
         path: '',
@@ -113,6 +124,7 @@ const routes = [
   {
     path: '/carMaintain',
     component: Layout,
+    hidden: sessionStorage['isAdmin'],
     children: [
       {
         path: '',
@@ -125,6 +137,7 @@ const routes = [
   {
     path: '/user',
     component: Layout,
+    hidden: sessionStorage['isAdmin'],
     meta: { title: '车辆维修', icon: 'el-icon-phone' },
     children: [
       {
@@ -160,7 +173,15 @@ export default router
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
-  next()
+
+  // 未登录时，访问页面直接跳至登录页面
+  if (!sessionStorage['isLogin'] && to.path != '/login') {
+    next('/login')
+  } else if (!sessionStorage['isAdmin'] && to.path == '/home') {
+    next('/userOrderList')
+  } else {
+    next()
+  }
 })
 
 router.afterEach(() => {
